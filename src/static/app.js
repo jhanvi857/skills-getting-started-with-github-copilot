@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Reset activity select options (keep placeholder)
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -26,6 +29,56 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
+
+        // Participants section
+        const participantsDiv = document.createElement("div");
+        participantsDiv.className = "participants";
+
+        const participantsHeader = document.createElement("h5");
+        participantsHeader.textContent = "Participants";
+        participantsDiv.appendChild(participantsHeader);
+
+        const ul = document.createElement("ul");
+
+        // helper to mask email for privacy
+        const maskEmail = (email) => {
+          try {
+            const [local, domain] = email.split("@");
+            if (!domain) return email;
+            return `${local.charAt(0)}***@${domain}`;
+          } catch {
+            return email;
+          }
+        };
+
+        if (details.participants && details.participants.length > 0) {
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+
+            const avatar = document.createElement("span");
+            avatar.className = "avatar";
+            // use first character of local part as initial
+            const initial = (p && p.charAt(0)) ? p.charAt(0) : "?";
+            avatar.textContent = initial;
+
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = maskEmail(p);
+
+            li.appendChild(avatar);
+            li.appendChild(emailSpan);
+            ul.appendChild(li);
+          });
+        } else {
+          const noneLi = document.createElement("li");
+          noneLi.className = "participant-item";
+          noneLi.textContent = "No participants yet.";
+          ul.appendChild(noneLi);
+        }
+
+        participantsDiv.appendChild(ul);
+        activityCard.appendChild(participantsDiv);
 
         activitiesList.appendChild(activityCard);
 
